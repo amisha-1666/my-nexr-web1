@@ -1,35 +1,51 @@
 //api/auth/login/route.ts
-import User from '@/models/User';
+import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import dbConnect from '@/lib/dbConnect';
+import User from '@/models/User';
+  
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export async function POST(request: Request) {
-    // Fetch the request body
+  try {
+    await dbConnect();
     const { email, password } = await request.json();
-
-    // Fetch the user from the database
+    
+    if (!email || !password) {
+      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    }
+    
     const user = await User.findOne({ email });
-
     if (!user || !(await bcrypt.compare(password, user.password))) {
-        return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-        });
+      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
+    
+    const token = jwt.sign(
+      { userId: user._id },
+      JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-    // Generate a JWT token with the user's ID
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-        throw new Error('JWT_SECRET is not defined');
-    }
-    const token = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '7d' });
+    const response = NextResponse.json({ 
+      message: 'Login successful',
+      user: { id: user._id, name: user.name, email: user.email }
+    }, { status: 200 });
 
-    // Send the JWT token as a response
-    return new Response(JSON.stringify({ token, userId:user.id }), {
-        headers: { 'Content-Type': 'application/json' },
+    response.cookies.set('nextAppToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 86400, // 1 day
+      path: '/',
     });
-}
 
+    return response;
+  } catch (error) {
+    console.error('Error logging in:', error);
+    return NextResponse.json({ message: 'Error logging in' }, { status: 500 });
+  }
+}
 
 
 

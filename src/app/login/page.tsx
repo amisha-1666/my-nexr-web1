@@ -1,12 +1,10 @@
 // src/app/login/page.tsx
 'use client';
-import Head from 'next/head';
-import Image from 'next/image';
-import { useState } from 'react'; // Imports the useState hook from React, which is needed for managing state (form inputs, response messages, etc.) within the component.
-
-
+import { useAuth } from '@/context/AuthContext';
+import { useEffect, useState } from 'react'; 
 
 export default function Login() {
+    const { state: { isLoggedIn, user }, dispatch, logout } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const handleSubmit = async (e: React.FormEvent) => {
@@ -19,11 +17,25 @@ export default function Login() {
             body: JSON.stringify({ email, password }),
         });
 
-
+        if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+                dispatch({ type: 'LOGIN', payload: data.user });
+                window.location.href = '/admin';
+            } else {
+                alert('User data not found in response');
+            }
+        } else {
+            alert('Invalid credentials');
+        }
     }
+    useEffect(() => {
+        if (isLoggedIn && user) {
+            window.location.href = '/admin';
+        }
+    }, [isLoggedIn, user]);
     return (
         <>
-
             <section className="d-flex align-items-center justify-content-center min-vh-100">
                 <div className="container">
                     <div className="row justify-content-center">
@@ -32,7 +44,6 @@ export default function Login() {
                                 <div className="card-body">
                                     <div className="text-center mb-4">
                                         {/* Logo or illustration */}
-
                                         <h4 className="mb-0">Login to Your Account</h4>
                                     </div>
 
