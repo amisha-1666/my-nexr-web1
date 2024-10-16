@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Card, Nav, Tab, Table } from "react-bootstrap";
+import { Button, Card, Dropdown, Nav, Tab, Table } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, LinearScale, CategoryScale, PointElement, LineElement, LineController } from "chart.js";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "@/context/AuthContext";
 
 ChartJS.register(LinearScale, CategoryScale, PointElement, LineElement, LineController);
 
@@ -34,16 +35,18 @@ const chartData = {
     },
   ],
 };
-
+interface BannerFormData {
+  title: string;
+  image: File | null;
+  link: string;
+}
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [bannerFormData, setBannerFormData] = useState({
-    title: '',
-    image: null,
-    link: '',
-  });
-
+  const {
+    state: { isLoggedIn, user },
+    logout,
+  } = useAuth();
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -52,35 +55,34 @@ export default function Home() {
     setActiveTab(tab);
   };
 
+  const [bannerFormData, setBannerFormData] = useState<BannerFormData>({
+    title: '',
+    image: null,
+    link: '',
+  });
+
   const handleBannerFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value, files } = e.target;
-    setBannerFormData((prevData) => ({
-      ...prevData,
-      [id]: files ? files[0] : value,
-    }));
+    if (id === 'image' && files) {
+      setBannerFormData(prev => ({ ...prev, [id]: files[0] }));
+    } else {
+      setBannerFormData(prev => ({ ...prev, [id]: value }));
+    }
   };
 
   const handleBannerSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    const formDataObj = new FormData();
-    formDataObj.append('title', bannerFormData.title);
-    if (bannerFormData.image && typeof bannerFormData.image === 'object') {
-      formDataObj.append('image', bannerFormData.image);
+    const formData = new FormData();
+    formData.append('title', bannerFormData.title);
+    if (bannerFormData.image) {
+      formData.append('image', bannerFormData.image);
     }
-    formDataObj.append('link', bannerFormData.link);
+    formData.append('link', bannerFormData.link);
 
     try {
       const response = await fetch('/api/banners', {
         method: 'POST',
-        body: JSON.stringify({
-          title: bannerFormData.title,
-          image: bannerFormData.image && typeof bannerFormData.image === 'object' && 'name' in bannerFormData.image ? (bannerFormData.image as File).name : null,
-          link: bannerFormData.link,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        body: formData,
       });
 
       if (response.ok) {
@@ -95,7 +97,6 @@ export default function Home() {
       alert('An unexpected error occurred. Please try again.');
     }
   };
-
   return (
     <div className="d-flex flex-column min-vh-100">
       <div className="d-flex flex-grow-1">
@@ -122,13 +123,11 @@ export default function Home() {
             ))}
           </Nav>
           <hr />
-          <div className="dropdown">
-            <a
-              href="#"
-              className="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-              id="dropdownUser1"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="link"
+              id="dropdown-basic"
+              className="d-flex align-items-center text-white text-decoration-none"
             >
               <img
                 src="https://github.com/mdo.png"
@@ -138,17 +137,15 @@ export default function Home() {
                 className="rounded-circle me-2"
               />
               <strong>Admin</strong>
-            </a>
-            <ul
-              className="dropdown-menu dropdown-menu-dark text-small shadow"
-              aria-labelledby="dropdownUser1"
-            >
-              <li><a className="dropdown-item" href="#">Profile</a></li>
-              <li><a className="dropdown-item" href="#">Settings</a></li>
-              <li><hr className="dropdown-divider" /></li>
-              <li><a className="dropdown-item" href="#">Sign out</a></li>
-            </ul>
-          </div>
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className="dropdown-menu-dark text-small shadow">
+              <Dropdown.Item href="#">Profile</Dropdown.Item>
+              <Dropdown.Item href="#">Settings</Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item href="#" onClick={logout}>Sign out</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </aside>
 
         {/* Main Content */}
@@ -308,7 +305,7 @@ export default function Home() {
               <Card className="mb-4">
                 <Card.Body>
                   <Card.Title>Add New Banner</Card.Title>
-                  <form onSubmit={handleBannerSubmit}>
+                  <form onSubmit={handleBannerSubmit} >
                     <div className="mb-3">
                       <label htmlFor="title" className="form-label">Banner Title</label>
                       <input type="text" className="form-control" id="title" placeholder="Enter banner title" value={bannerFormData.title} onChange={handleBannerFormChange} />

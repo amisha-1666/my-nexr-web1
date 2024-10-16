@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             if (response.ok) {
                 dispatch({ type: 'LOGOUT' });
-                router.push('/'); // Redirect to home page after logout
+                router.push('/login'); // Redirect to home page after logout
             }
         } catch (error) {
             console.error('Error logging out:', error);
