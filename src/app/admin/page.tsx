@@ -293,12 +293,74 @@ export default function Home() {
             )}
 
             {activeTab === "about" && (
-              <Card>
-                <Card.Body>
-                  <Card.Title>About Us</Card.Title>
-                  <p>This is the About page content. You can add more information about your company or organization here.</p>
-                </Card.Body>
-              </Card>
+              <>
+                <Card className="mb-4">
+                  <Card.Body>
+                    <Card.Title>About Us Form</Card.Title>
+                    <form>
+                      <div className="mb-3">
+                        <label htmlFor="name" className="form-label">Name</label>
+                        <input type="text" className="form-control" id="name" placeholder="Enter name" />
+                      </div>
+                      <div className="mb-3">
+                        <label htmlFor="image" className="form-label">Upload Image</label>
+                        <input type="file" className="form-control" id="image" />
+                      </div>
+                      <div className="mb-3">
+                        <label htmlFor="description" className="form-label">Description</label>
+                        <textarea
+                          className="form-control"
+                          id="description"
+                          rows={5}
+                          onChange={(e) => {
+                            // Handle the change
+                            const data = e.target.value
+                          }}
+                        ></textarea>
+                      </div>
+                      <Button variant="primary" type="submit">Submit</Button>
+                    </form>
+                  </Card.Body>
+                </Card>
+
+                <Card>
+                  <Card.Body>
+                    <Card.Title>About Us Data</Card.Title>
+                    <div className="table-responsive">
+                      <Table hover>
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Image</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>John Doe</td>
+                            <td><img src="/path/to/image.jpg" alt="John Doe" width="50" height="50" /></td>
+                            <td>Lorem ipsum dolor sit amet...</td>
+                            <td>
+                              <Button variant="outline-primary" size="sm" className="me-2">Edit</Button>
+                              <Button variant="outline-danger" size="sm">Delete</Button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Jane Smith</td>
+                            <td><img src="/path/to/another-image.jpg" alt="Jane Smith" width="50" height="50" /></td>
+                            <td>Consectetur adipiscing elit...</td>
+                            <td>
+                              <Button variant="outline-primary" size="sm" className="me-2">Edit</Button>
+                              <Button variant="outline-danger" size="sm">Delete</Button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </>
             )}
 
             {activeTab === "banner" && (
@@ -329,6 +391,64 @@ export default function Home() {
                 <Card.Body>
                   <Card.Title>Team Members</Card.Title>
                   <p>Manage your team members here. You can add, edit, or remove team members from this section.</p>
+                  
+                  <form onSubmit="" className="mb-4">
+                    <div className="mb-3">
+                      <label htmlFor="name" className="form-label">Name</label>
+                      <input type="text" className="form-control" id="name" name="name" required />
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="designation" className="form-label">Designation</label>
+                      <input type="text" className="form-control" id="designation" name="designation" required />
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="image" className="form-label">Image</label>
+                      <input type="file" className="form-control" id="image" name="image" accept="image/*" required />
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="content" className="form-label">Content</label>
+                      <textarea className="form-control" id="content" name="content" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" className="btn btn-primary">Add Team Member</button>
+                  </form>
+
+                  <Table striped bordered hover responsive>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Image</th>
+                        <th>Content</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>John Doe</td>
+                        <td>Developer</td>
+                        <td>
+                          <img src="/path/to/john-doe-image.jpg" alt="John Doe" style={{ width: '50px', height: '50px', objectFit: 'cover' }} />
+                        </td>
+                        <td>John is an experienced developer with 5 years of experience.</td>
+                        <td>
+                          <Button variant="outline-primary" size="sm" className="me-2">Edit</Button>
+                          <Button variant="outline-danger" size="sm">Delete</Button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Jane Smith</td>
+                        <td>Designer</td>
+                        <td>
+                          <img src="/path/to/jane-smith-image.jpg" alt="Jane Smith" style={{ width: '50px', height: '50px', objectFit: 'cover' }} />
+                        </td>
+                        <td>Jane is a creative designer with a keen eye for detail.</td>
+                        <td>
+                          <Button variant="outline-primary" size="sm" className="me-2">Edit</Button>
+                          <Button variant="outline-danger" size="sm">Delete</Button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
                 </Card.Body>
               </Card>
             )}
@@ -338,13 +458,52 @@ export default function Home() {
                 <Card.Body>
                   <Card.Title>Contact Information</Card.Title>
                   <p>Update your contact information and manage incoming messages from this section.</p>
+                  <Table striped bordered hover responsive className="mt-4">
+                    <thead className="bg-primary text-white">
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>John Doe</td>
+                        <td>john@example.com</td>
+                        <td>I'm interested in your services.</td>
+                        <td>
+                          <Button variant="outline-primary" size="sm" className="me-2">Reply</Button>
+                          <Button variant="outline-danger" size="sm">Delete</Button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Jane Smith</td>
+                        <td>jane@example.com</td>
+                        <td>Can you provide more information about your products?</td>
+                        <td>
+                          <Button variant="outline-primary" size="sm" className="me-2">Reply</Button>
+                          <Button variant="outline-danger" size="sm">Delete</Button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Mike Johnson</td>
+                        <td>mike@example.com</td>
+                        <td>I have a question about pricing.</td>
+                        <td>
+                          <Button variant="outline-primary" size="sm" className="me-2">Reply</Button>
+                          <Button variant="outline-danger" size="sm">Delete</Button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
                 </Card.Body>
               </Card>
             )}
           </main>
 
           {/* Footer */}
-          <footer className="bg-dark text-light py-4 mt-auto">
+          <footer className="bg- text-light py-4 mt-auto">
             <div className="container">
               <div className="row">
                 <div className="col-md-6">
